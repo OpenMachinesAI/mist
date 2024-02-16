@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #app {
+            text-align: center;
+            width: 80%;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 20px;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #23a6d5;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #loadingGif {
+            display: none;
+            margin-top: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <h1>Mist-1</h1>
+        <textarea id="textInput" placeholder="What do you want to hear?"></textarea>
+        <button id="generateButton">Generate Music</button>
+        <img id="loadingGif" src="https://www.example.com/loading.gif" alt="Loading..." />
+        <div id="responseArea"></div>
+    </div>
+
+    <script>
+        document.getElementById("generateButton").addEventListener("click", function() {
+            const data = {
+                inputs: document.getElementById("textInput").value
+            };
+            showLoading(true);
+            query(data).then(response => {
+                const url = URL.createObjectURL(response);
+                const audioElement = document.createElement('audio');
+                audioElement.src = url;
+                audioElement.controls = true;
+                document.getElementById("responseArea").innerHTML = '';
+                document.getElementById("responseArea").appendChild(audioElement);
+                showLoading(false);
+            }).catch(() => {
+                showLoading(false);
+            });
+        });
+
+        function showLoading(show) {
+            document.getElementById("loadingGif").style.display = show ? "block" : "none";
+        }
+
+        async function query(data) {
+            const response = await fetch(
+                "https://api-inference.huggingface.co/models/facebook/musicgen-small",
+                {
+                    headers: { Authorization: "Bearer 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" },
+                    method: "POST",
+                    body: JSON.stringify(data),
+                }
+            );
+            return await response.blob();
+        }
+    </script>
+</body>
+</html>
